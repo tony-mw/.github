@@ -47,55 +47,56 @@ description: Run Terraform Build
 inputs:
   working_directory:
     required: true
+    description: The working directory for the environment
   google_creds:
     required: true
+    description: Credentials for accessing GCP
 
-runs:
-  using: "composite"
-    env:
-      GOOGLE_CREDENTIALS: ${{ inputs.google_creds }}
-      working-directory: ${{ inputs.working_directory }}
-    steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v2
-
-    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
+jobs:
+  build:
+    runs-on: ubuntu-latest
+  
+  steps:
+  # Checkout the repository to the GitHub Actions runner
+  - name: Checkout
+    uses: actions/checkout@v2
+  
+  # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+  - name: Setup Terraform
+    uses: hashicorp/setup-terraform@v1
+  
+    #Check directory
+  - name: pwd
+    run: pwd
     
-      #Check directory
-    - name: pwd
-      run: pwd
-      
 
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init
-      run: terraform init
+  # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+  - name: Terraform Init
+    run: terraform init
 
-    # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terraform Format
-      run: terraform fmt -check
+  # Checks that all Terraform configuration files adhere to a canonical format
+  - name: Terraform Format
+    run: terraform fmt -check
 
-    # Generates an execution plan for Terraform
-    - name: Terraform Plan
-      run: terraform plan
-    
-    - name: Terraform-Plan
-      uses: actions/upload-artifact@v2
-      with:
-        name: terraform-plan
-        path: ../.
-    
-    - name: Download Terraform Plan
-      uses: actions/download-artifact@v2
-      with:
-        name: terraform-plan
-        path: downloads/artifacts
-    
-    - name: Verify Artifact
-      run: ls -la downloads/artifacts
-
+  # Generates an execution plan for Terraform
+  - name: Terraform Plan
+    run: terraform plan
+  
+  - name: Terraform-Plan
+    uses: actions/upload-artifact@v2
+    with:
+      name: terraform-plan
+      path: ../.
+  
+  - name: Download Terraform Plan
+    uses: actions/download-artifact@v2
+    with:
+      name: terraform-plan
+      path: downloads/artifacts
+  
+  - name: Verify Artifact
+    run: ls -la downloads/artifacts
+  
       # On push to main, build or change infrastructure according to Terraform configuration files
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
 #     - name: Terraform Apply
