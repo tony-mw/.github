@@ -1,0 +1,8 @@
+{
+    "name": "Terraform Build Workflow",
+    "description": "Test Terraform Build",
+    "iconName": "example-icon",
+    "categories": [
+        "Terraform"
+    ]
+}
